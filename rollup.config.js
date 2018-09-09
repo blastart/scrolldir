@@ -9,7 +9,7 @@ import commonjs from 'rollup-plugin-commonjs'
 const name = process.env.entry ? '.auto' : ''
 
 export default {
-  input: `src/scrolldir${name}.js`,
+  input: `./src/scrolldir${name}.js`,
   plugins: [
     resolve({
       jsnext: true,
@@ -24,9 +24,9 @@ export default {
     }),
   ],
   output: {
-    dest: `dist/scrolldir${name}.js`,
+    file: `./dist/scrolldir${name}.js`,
     format: 'umd',
-    name: `scrollDir${name}`,
+    name: `ScrollDir${name}`,
     sourceMap: false, // removes the souremap at the bottom of the file
   }
 }

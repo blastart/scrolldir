@@ -1,14 +1,16 @@
 {
   "presets": [
     [
-      "@babel/preset-env",
+      "env",
       {
         "targets": {
           "browsers": [
-            "defaults",
+            "last 2 versions",
             "ie >= 9"
           ]
-        }
+        },
+        "modules": "commonjs",
+        "loose": true
       }
     ]
   ]
