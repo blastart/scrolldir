@@ -1,2 +1,2 @@
 import ScrollDir from './scrolldir'
-const scrollDir = new ScrollDir()
+export default (new ScrollDir())

@@ -1,7 +1,7 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (factory());
+  (global.ScrollDir = global.ScrollDir || {}, global.ScrollDir.auto = factory());
 }(this, (function () { 'use strict';
 
   function _classCallCheck(instance, Constructor) {
@@ -225,6 +225,8 @@
     return ScrollDir;
   }();
 
-  var scrollDir = new ScrollDir();
+  var scrolldir_auto = new ScrollDir();
+
+  return scrolldir_auto;
 
 })));
