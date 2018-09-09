@@ -1,14 +1,8 @@
-
 class ScrollDir {
 
   constructor(_o) {
     const that = this
-
     this.setOptions(_o)
-    this._historyLength = 32 // Ticks to keep in history.
-    this._historyMaxAge = 512 // History data time-to-live (ms).
-    this._thresholdPixels = 64 // Ignore moves smaller than this.
-    this.enabled = false
     this.onScroll = () => void this.tick()
     this.handler = function handler(event) {
       that._lastScrollTs = event.timeStamp
@@ -20,7 +14,9 @@ class ScrollDir {
   }
 
   setOptions(_o) {
-    if (this.el) { this.el.removeAttribute(this.ops.attribute) }
+    if (this.el && this.ops.attribute !== false) {
+      this.el.removeAttribute(this.ops.attribute)
+    }
 
     this.ops = {
       off: false,
@@ -29,6 +25,9 @@ class ScrollDir {
       win: 'window',
       onChange: function() {},
       attribute: 'data-scrolldir',
+      _historyLength: 32, // Ticks to keep in history.
+      _historyMaxAge: 512, // History data time-to-live (ms).
+      _thresholdPixels: 64, // Ignore moves smaller than this.
       ...(this.ops || {}),
       ..._o
     }
@@ -39,7 +38,7 @@ class ScrollDir {
     this.el = this.ops.el === 'html' ? document.documentElement : this.getElem(this.ops.el)
     this.el_win = this.ops.win === 'window' ? window : this.getElem(this.ops.win)
     this._last = {dir: null, enabled: null}
-    this._history = Array(this._historyLength)
+    this._history = Array(this.ops._historyLength)
     this._pivot = this.el_win.scrollY || this.el_win.pageYOffset // "high-water mark"
     this._lastScrollTs = 0 // last scroll event
     this._pivotTime = 0
@@ -68,9 +67,11 @@ class ScrollDir {
     ) {
       this._last.dir = this.dir
       this._last.enabled = this.enabled
-      this.el.setAttribute(this.ops.attribute, this.enabled ? this.dir : 'off')
-      this.change()
+      if (this.ops.attribute !== false) {
+        this.el.setAttribute(this.ops.attribute, this.enabled ? this.dir : 'off')
+      }
     }
+    this.change()
   }
 
   enable() {
@@ -113,17 +114,19 @@ class ScrollDir {
     // else we have backed off high-water mark
 
     // Apply max age to find current reference point
-    const cutoffTime = t - this._historyMaxAge
+    const cutoffTime = t - this.ops._historyMaxAge
     if (cutoffTime > this._pivotTime) {
       this._pivot = y
-      for (let i = 0; i < this._historyLength; i += 1) {
-        if (!this._history[i] || this._history[i].t < cutoffTime) break
+      for (let i = 0; i < this.ops._historyLength; i += 1) {
+        if (!this._history[i] || this._history[i].t < cutoffTime) {
+          break
+        }
         this._pivot = furthest(this._pivot, this._history[i].y)
       }
     }
 
     // Have we exceeded threshold?
-    if (Math.abs(y - this._pivot) > this._thresholdPixels) {
+    if (Math.abs(y - this._pivot) > this.ops._thresholdPixels) {
       this._pivot = y
       this._pivotTime = t
       this.dir = this.dir === 'down' ? 'up' : 'down'
