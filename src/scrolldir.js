@@ -2,7 +2,6 @@
 class ScrollDir {
 
   constructor(_o) {
-
     const that = this
 
     this.setOptions(_o)
@@ -15,38 +14,46 @@ class ScrollDir {
       that._lastScrollTs = event.timeStamp
       return that.el_win.requestAnimationFrame(that.onScroll)
     }
-    this.update()
+
+    this.init()
     this.initialized = true
   }
 
   setOptions(_o) {
-    if (this.el) {
-      this.el.removeAttribute(this.ops.attribute)
-    }
+    if (this.el) { this.el.removeAttribute(this.ops.attribute) }
 
     this.ops = {
       off: false,
       dir: 'down',
       el: 'html',
       win: 'window',
+      onChange: function() {},
       attribute: 'data-scrolldir',
+      ...(this.ops || {}),
       ..._o
     }
+
+    this.enabled = false
     this.dir = this.ops.dir === 'down' ? 'down' : 'up'
     this.el_body = document.body
     this.el = this.ops.el === 'html' ? document.documentElement : this.getElem(this.ops.el)
     this.el_win = this.ops.win === 'window' ? window : this.getElem(this.ops.win)
+    this._last = {dir: null, enabled: null}
     this._history = Array(this._historyLength)
     this._pivot = this.el_win.scrollY || this.el_win.pageYOffset // "high-water mark"
     this._lastScrollTs = 0 // last scroll event
     this._pivotTime = 0
 
-    if (this.initialized) {
-      this.update()
+    if (this.initialized) { this.init() }
+  }
+
+  change() {
+    if (typeof this.ops.onChange === 'function') {
+      this.ops.onChange(this.dir, this.enabled, this.ops.attribute)
     }
   }
 
-  update() {
+  init() {
     void (this.ops.off ? this.disable() : this.enable())
   }
 
@@ -56,8 +63,14 @@ class ScrollDir {
     )
   }
 
-  setAttribute() {
-    this.el.setAttribute(this.ops.attribute, this.enabled ? this.dir : 'off')
+  update(force) {
+    if (force || this.enabled !== this._last.enabled || this.dir !== this._last.dir
+    ) {
+      this._last.dir = this.dir
+      this._last.enabled = this.enabled
+      this.el.setAttribute(this.ops.attribute, this.enabled ? this.dir : 'off')
+      this.change()
+    }
   }
 
   enable() {
@@ -65,7 +78,7 @@ class ScrollDir {
       this.el_win.addEventListener('scroll', this.handler)
     }
     this.enabled = true
-    this.setAttribute()
+    this.update()
   }
 
   disable() {
@@ -73,11 +86,10 @@ class ScrollDir {
       this.el_win.addEventListener('scroll', this.handler)
     }
     this.enabled = false
-    this.setAttribute()
+    this.update()
   }
 
   tick() {
-
     let y = this.el_win.scrollY || this.el_win.pageYOffset
     const t = this._lastScrollTs
     const furthest = this.dir === 'down' ? Math.max : Math.min
@@ -115,7 +127,7 @@ class ScrollDir {
       this._pivot = y
       this._pivotTime = t
       this.dir = this.dir === 'down' ? 'up' : 'down'
-      this.setAttribute()
+      this.update()
     }
   }
 }

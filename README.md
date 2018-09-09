@@ -5,29 +5,6 @@
 
 <hr>
 
-<p align="center">
-  <a href="https://travis-ci.org/dollarshaveclub/scrolldir/">
-    <img alt="Build Status" src="https://travis-ci.org/dollarshaveclub/scrolldir.svg?branch=master" />
-  </a>
-  <a href="https://cdnjs.com/libraries/scrolldir">
-    <img alt="CDNJS" src="https://img.shields.io/cdnjs/v/scrolldir.svg" />
-  </a>
-  <a href="https://greenkeeper.io/">
-    <img alt="Greenkeeper" src="https://badges.greenkeeper.io/dollarshaveclub/scrolldir.svg" />
-  </a>
-  <a href="https://www.npmjs.com/package/scrolldir">
-    <img alt="npm version" src="https://badge.fury.io/js/scrolldir.svg" />
-  </a>
-  <a href="https://github.com/dollarshaveclub/scrolldir">
-    <img alt="Bower version" src="https://badge.fury.io/bo/scrolldir.svg" />
-  </a>
-  <a href="https://twitter.com/home?status=ScrollDir%2C%20a%20micro%20JS%20lib%20that%20describes%20vertical%20scroll%20direction.%20https%3A%2F%2Fgithub.com%2Fdollarshaveclub%2Fscrolldir%20by%20%40pfisher42%20co%20%40yowainwright%20%40DSCEngineering">
-    <img alt="Share on Twitter" src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social&maxAge=2592000" />
-  </a>
-</p>
-
-<hr>
-
 <h1 align="center">ScrollDir ⬆⬇</h1>
 
 ScrollDir, short for Scroll Direction, is a 0 dependency, ~1kb micro Javascript plugin to easily leverage vertical scroll direction in CSS via a data attribute. 💪
@@ -94,28 +71,35 @@ Now go write some styles using `[data-scrolldir="down"]` and `[data-scrolldir="u
 Add **dist/scrolldir.min.js**. You have access to the API options below and must invoke scrollDir.
 
 ```javascript
-scrollDir();
+const scrollDir = new ScrollDir({  
+  onChange: function(dir, enabled) {
+    console.log('direction: ', dir, 'enabled: ', enabled);
+  }
+});
 ```
 
 To use an attribute besides `data-scrolldir`:
 ```javascript
-scrollDir({ attribute: 'new-attribute-name' });
+const scrollDir = new ScrollDir({ attribute: 'new-attribute-name' });
 ```
 
 To add the Scrolldir attribute to a different element:
 ```javascript
-scrollDir({ el: 'your-new-selector' });
+const scrollDir = new ScrollDir({ el: 'your-new-selector' });
 ```
 
 To turn Scrolldir off:
 ```javascript
-scrollDir({ off: true });
+const scrollDir = new ScrollDir();
+
+scrollDir.setOptions({ off: true });
 ```
 
 To turn provide a different scroll direction on page load (or app start):
 ```javascript
-scrollDir({ dir: 'up' }); // the default is 'down'
+const scrollDir = new ScrollDir({ dir: 'up' }); // the default is 'down'
 ```
+
 
 ## Example 🌴
 

@@ -87,7 +87,7 @@
         return that.el_win.requestAnimationFrame(that.onScroll);
       };
 
-      this.update();
+      this.init();
       this.initialized = true;
     }
 
@@ -103,12 +103,18 @@
           dir: 'down',
           el: 'html',
           win: 'window',
+          onChange: function onChange() {},
           attribute: 'data-scrolldir'
-        }, _o);
+        }, this.ops || {}, _o);
+        this.enabled = false;
         this.dir = this.ops.dir === 'down' ? 'down' : 'up';
         this.el_body = document.body;
         this.el = this.ops.el === 'html' ? document.documentElement : this.getElem(this.ops.el);
         this.el_win = this.ops.win === 'window' ? window : this.getElem(this.ops.win);
+        this._last = {
+          dir: null,
+          enabled: null
+        };
         this._history = Array(this._historyLength);
         this._pivot = this.el_win.scrollY || this.el_win.pageYOffset; // "high-water mark"
 
@@ -117,12 +123,19 @@
         this._pivotTime = 0;
 
         if (this.initialized) {
-          this.update();
+          this.init();
         }
       }
     }, {
-      key: "update",
-      value: function update() {
+      key: "change",
+      value: function change() {
+        if (typeof this.ops.onChange === 'function') {
+          this.ops.onChange(this.dir, this.enabled, this.ops.attribute);
+        }
+      }
+    }, {
+      key: "init",
+      value: function init() {
         void (this.ops.off ? this.disable() : this.enable());
       }
     }, {
@@ -131,9 +144,14 @@
         return el && el.nodeType === 1 ? el : typeof el === 'string' ? document.querySelector(el) : null;
       }
     }, {
-      key: "setAttribute",
-      value: function setAttribute() {
-        this.el.setAttribute(this.ops.attribute, this.enabled ? this.dir : 'off');
+      key: "update",
+      value: function update(force) {
+        if (force || this.enabled !== this._last.enabled || this.dir !== this._last.dir) {
+          this._last.dir = this.dir;
+          this._last.enabled = this.enabled;
+          this.el.setAttribute(this.ops.attribute, this.enabled ? this.dir : 'off');
+          this.change();
+        }
       }
     }, {
       key: "enable",
@@ -143,7 +161,7 @@
         }
 
         this.enabled = true;
-        this.setAttribute();
+        this.update();
       }
     }, {
       key: "disable",
@@ -153,7 +171,7 @@
         }
 
         this.enabled = false;
-        this.setAttribute();
+        this.update();
       }
     }, {
       key: "tick",
@@ -199,7 +217,7 @@
           this._pivot = y;
           this._pivotTime = t;
           this.dir = this.dir === 'down' ? 'up' : 'down';
-          this.setAttribute();
+          this.update();
         }
       }
     }]);
